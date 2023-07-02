@@ -1,0 +1,9 @@
+Website OGGGG:
+Open Interest -  YES
+Change in OI - CALC
+Volume - YES
+IV - CALC
+LTP - YES
+Change wrt prev close - CALC
+Bid and ask - qty and price - YES
+strike price - YES
