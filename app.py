@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 import socket
 import struct
 import re
@@ -158,17 +158,43 @@ def start_fetching_data():
 
 @app.route('/data', methods=['GET'])
 def get_data():
-    start_fetching_data()
+    # Retrieve the expiry date input from the user (e.g., '23JUL23')
+    expiry_date = request.args.get('expiry_date')
 
-    # Return the updated ce_data and pe_data dictionaries as JSON responses
-    return jsonify(ce_data=ce_data, pe_data=pe_data)
+    # Check if expiry date is provided
+    if expiry_date:
+        # Filter the CE and PE data based on the provided expiry date
+        filtered_ce_data = {
+            symbol: data
+            for symbol, data in ce_data.items()
+            if data.get('Expiry Date') == expiry_date
+        }
+        filtered_pe_data = {
+            symbol: data
+            for symbol, data in pe_data.items()
+            if data.get('Expiry Date') == expiry_date
+        }
+    else:
+        # Return all the CE and PE data
+        filtered_ce_data = ce_data
+        filtered_pe_data = pe_data
+
+    # Return the filtered data as JSON responses
+    return jsonify(ce_data=filtered_ce_data, pe_data=filtered_pe_data)
 
 
 @app.route('/')
 def index():
-    options_data = get_data().json
-    return render_template('table.html', options_data=options_data)
+    # Retrieve the expiry date input from the user (e.g., '23JUL23')
+    expiry_date = request.args.get('expiry_date')
+
+    # Retrieve the filtered data based on the expiry date
+    response = get_data()
+    filtered_data = response.json
+
+    return render_template('index.html', options_data=filtered_data)
 
 
 if __name__ == '__main__':
+    start_fetching_data()  # Start fetching data in a separate thread
     app.run(debug=True, port=5000)
