@@ -33,6 +33,7 @@ def process_packet(packet_data):
 
     trading_symbol_parts = re.findall(r'^([A-Z]+)(\d{2}[A-Z]{3}\d{2})(\d+[A-Z]+)$', trading_symbol)
     if trading_symbol_parts:
+        type_stock = trading_symbol_parts[0][0]
         expiry_date = trading_symbol_parts[0][1]  # Extract the first 6 characters
         strike_price = trading_symbol_parts[0][2][:-2]  # Exclude the last two characters
     else:
@@ -45,6 +46,7 @@ def process_packet(packet_data):
         if trading_symbol in ce_data:
             # Update the values for the existing key
             ce_data[trading_symbol].update({
+                'Stock_Type': type_stock,
                 'Expiry Date': expiry_date,
                 'Strike Price': strike_price,
                 'LTP': ltp,
@@ -63,6 +65,7 @@ def process_packet(packet_data):
         else:
             # Add CE data to dictionary
             ce_data[trading_symbol] = {
+                'Stock_Type': type_stock,
                 'Expiry Date': expiry_date,
                 'Strike Price': strike_price,
                 'LTP': ltp,
@@ -83,6 +86,7 @@ def process_packet(packet_data):
         if trading_symbol in pe_data:
             # Update the values for the existing key
             pe_data[trading_symbol].update({
+                'Stock_Type': type_stock,
                 'Expiry Date': expiry_date,
                 'Strike Price': strike_price,
                 'LTP': ltp,
@@ -101,6 +105,7 @@ def process_packet(packet_data):
         else:
             # Add PE data to dictionary
             pe_data[trading_symbol] = {
+                'Stock_Type': type_stock,
                 'Expiry Date': expiry_date,
                 'Strike Price': strike_price,
                 'LTP': ltp,
@@ -160,10 +165,14 @@ def start_fetching_data():
 def get_data():
     # Retrieve the expiry date input from the user (e.g., '23JUL23')
     expiry_date = request.args.get('expiry_date')
+    strike_price_range = request.args.get('strike_price_range')
+    option_type = request.args.get('option_type')
 
-    # Check if expiry date is provided
+    # Filter the CE and PE data based on the provided expiry date and strike price range
+    filtered_ce_data = {}
+    filtered_pe_data = {}
+
     if expiry_date:
-        # Filter the CE and PE data based on the provided expiry date
         filtered_ce_data = {
             symbol: data
             for symbol, data in ce_data.items()
@@ -175,24 +184,57 @@ def get_data():
             if data.get('Expiry Date') == expiry_date
         }
     else:
-        # Return all the CE and PE data
         filtered_ce_data = ce_data
         filtered_pe_data = pe_data
+
+    if strike_price_range:
+        # Extract the minimum and maximum strike price from the range
+        min_strike_price, max_strike_price = strike_price_range.split('-')
+        min_strike_price = int(min_strike_price.strip())
+        max_strike_price = int(max_strike_price.strip())
+
+        # Filter the CE and PE data based on the strike price range
+        filtered_ce_data = {
+            symbol: data
+            for symbol, data in filtered_ce_data.items()
+            if min_strike_price <= int(data.get('Strike Price')) <= max_strike_price
+        }
+        filtered_pe_data = {
+            symbol: data
+            for symbol, data in filtered_pe_data.items()
+            if min_strike_price <= int(data.get('Strike Price')) <= max_strike_price
+        }
+
+    # Filter the data based on the selected option type
+    if option_type:
+        filtered_ce_data = {
+            symbol: data
+            for symbol, data in filtered_ce_data.items()
+            if data.get('Stock_Type') == option_type
+        }
+        filtered_pe_data = {
+            symbol: data
+            for symbol, data in filtered_pe_data.items()
+            if data.get('Stock_Type') == option_type
+        }
 
     # Return the filtered data as JSON responses
     return jsonify(ce_data=filtered_ce_data, pe_data=filtered_pe_data)
 
 
+
 @app.route('/')
 def index():
-    # Retrieve the expiry date input from the user (e.g., '23JUL23')
+    # Retrieve the expiry date and strike price range input from the user
     expiry_date = request.args.get('expiry_date')
+    strike_price_range = request.args.get('strike_price_range')
 
-    # Retrieve the filtered data based on the expiry date
+    # Retrieve the filtered data based on the expiry date and strike price range
     response = get_data()
     filtered_data = response.json
 
-    return render_template('index.html', options_data=filtered_data)
+    return render_template('index.html', options_data=filtered_data,
+                           expiry_date=expiry_date, strike_price_range=strike_price_range)
 
 
 if __name__ == '__main__':
