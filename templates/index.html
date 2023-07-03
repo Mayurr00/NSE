@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Options Data</title>
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 49%; /* Adjust the width as needed */
+        }
+
+        th, td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Options Data</h1>
+
+    <form action="/" method="get">
+        <label for="expiry_date">Expiry Date:</label>
+        <input type="text" id="expiry_date" name="expiry_date" placeholder="Enter expiry date (e.g., 23JUL23)">
+        <br>
+        <label for="strike_price_range">Strike Price Range:</label>
+        <input type="text" id="strike_price_range" name="strike_price_range" placeholder="Enter strike price range (e.g., 100-200)">
+        <select id="option_type" name="option_type">
+            <option value="">All</option>
+            <option value="ALLBANKS">ALLBANKS</option>
+            <option value="MAINIDX">MAINIDX</option>
+            <option value="FINANCIALS">FINANCIALS</option>
+            <option value="MIDCAPS">MIDCAPS</option>
+        </select>
+        </select>
+        <input type="submit" value="Filter">
+    </form>
+    
+    <div class="container">
+        <div>
+            <h2>CE Options</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Trading Symbol</th>
+                        <th>Type</th>
+                        <th>Open Interest</th>
+                        <th>Volume</th>
+                        <th>Previous Close Price</th>
+                        <th>LTP</th>
+                        <th>LTQ</th>
+                        <th>Bid Quantity</th>
+                        <th>Bid Price</th>
+                        <th>Ask Price</th>
+                        <th>Ask Quantity</th>
+                        <th>Sequence</th>
+                        <th>Timestamp</th>
+                        <th>Strike Price</th>
+                        <th>Expiry Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for symbol, data in options_data.ce_data.items() %}
+                    <tr>
+                        <td>{{ symbol }}</td>
+                        <td>{{ data["Stock_Type"] }}</td>
+                        <td>{{ data["Open Interest"] }}</td>
+                        <td>{{ data["Volume"] }}</td>
+                        <td>{{ data["Previous Close Price"] }}</td>
+                        <td>{{ data["LTP"] }}</td>
+                        <td>{{ data["LTQ"] }}</td>
+                        <td>{{ data["Bid Quantity"] }}</td>
+                        <td>{{ data["Bid Price"] }}</td>
+                        <td>{{ data["Ask Price"] }}</td>
+                        <td>{{ data["Ask Quantity"] }}</td>
+                        <td>{{ data["Sequence"] }}</td>
+                        <td>{{ data["Timestamp"] }}</td>
+                        <td>{{ data["Strike Price"] }}</td>
+                        <td>{{ data["Expiry Date"] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <h2>PE Options</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Trading Symbol</th>
+                        <th>Type</th>
+                        <th>Open Interest</th>
+                        <th>Volume</th>
+                        <th>Previous Close Price</th>
+                        <th>LTP</th>
+                        <th>LTQ</th>
+                        <th>Bid Quantity</th>
+                        <th>Bid Price</th>
+                        <th>Ask Price</th>
+                        <th>Ask Quantity</th>
+                        <th>Sequence</th>
+                        <th>Timestamp</th>
+                        <th>Strike Price</th>
+                        <th>Expiry Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for symbol, data in options_data.pe_data.items() %}
+                    <tr>
+                        <td>{{ symbol }}</td>
+                        <td>{{ data["Stock_Type"] }}</td>
+                        <td>{{ data["Open Interest"] }}</td>
+                        <td>{{ data["Volume"] }}</td>
+                        <td>{{ data["Previous Close Price"] }}</td>
+                        <td>{{ data["LTP"] }}</td>
+                        <td>{{ data["LTQ"] }}</td>
+                        <td>{{ data["Bid Quantity"] }}</td>
+                        <td>{{ data["Bid Price"] }}</td>
+                        <td>{{ data["Ask Price"] }}</td>
+                        <td>{{ data["Ask Quantity"] }}</td>
+                        <td>{{ data["Sequence"] }}</td>
+                        <td>{{ data["Timestamp"] }}</td>
+                        <td>{{ data["Strike Price"] }}</td>
+                        <td>{{ data["Expiry Date"] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
