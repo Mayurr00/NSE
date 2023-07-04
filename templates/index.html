@@ -1,136 +1,428 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Options Data</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="tepmplates/style.css">
+    <title>Options Chain</title>
+
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #020810;
+        }
+        
+        nav {
+            background-color: #040c18;
+            height: 4em;
+        }
+        
+        .navbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            color: #fff;
+            font-size: 2em;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            list-style: none;
+            margin: 0em;
+            padding: 0em;
+            display: flex;
+        }
+        
+        .nav-links li {
+            margin-left: 4em;
+        }
+        
+        .nav-links li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.5em;
+        }
+        
+        .nav-links li a:hover {
+            border-bottom: 2px solid #fff;
+        }
+        
+        .content{
+            color: white;
+            font-size: 1.5em;
+            margin-left: 7em;
+            padding-top: 1.5em;
+        }
+        
+        /* Css for grid-container  */
+        .grid-container {
+            display: inline-grid;
+            grid-template-columns: 19em 19em;
+            gap: 10px;
+            padding: 10px;
+        }
+        
+        .grid-container .selectsymb, .expirydate{
+            margin-left: 10em;
+        }
+        
+        
+        /* Css for dropdown select */
+        
+        
+        
+        .selectsymb-head, .expirydate-head {
+            color: white;
+            font-size: 1.1em;
+        }
+        
+        
+        .custom-select {
+            position: relative;
+            width: 9em;
+            height: 2em;
+            background-color: #f1f1f1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .custom-select select {
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+            border: none;
+            background-color: transparent;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+        }
+        
+        .custom-select select:focus {
+            outline: none;
+        }
+        
+        .custom-select::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #666;
+        }
+        
+        .custom-select select::-ms-expand {
+            display: none;
+        }
+        
+        .expirydate-content{
+            position: relative;
+            width: 10.5em;
+            height: 2.5em;
+            background-color: #f1f1f1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        
+        .filter_button{
+            display: inline-block;
+            margin-left: 23em;
+            font-size: 1em;
+        }
+
+        
+        /* Table Css  */
+        
+        
         .container {
             display: flex;
             justify-content: space-between;
+            margin-left: 2.5em;
+            margin-top: 3em;
         }
-
-        table {
+        
+        table , th, td{
             border-collapse: collapse;
-            width: 49%; /* Adjust the width as needed */
+            border: 1px solid white;
+            width: 49%; 
+            color: #c9d1d9;
+            background-color: #071122;
+            font-size: 0.77em;
+        }
+        
+        th, td {
+            border-bottom: 1px solid #ddd;
+
         }
 
-        th, td {
-            text-align: left;
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
+        th {
+            background-color: rgb(36, 110, 111);
         }
+        
+        
     </style>
 </head>
 <body>
-    <h1>Options Data</h1>
+    <nav>
+        <div class="navbar">
+            <a href="#" class="logo">Logo</a>
+            <ul class="nav-links">
+                <li><a href="#">Demo</a></li>
+                <li><a href="#">Demo</a></li>
+                <li><a href="#">Demo</a></li>
+                <li><a href="#">Demo</a></li>
+            </ul>
+        </div>
+    </nav>
 
-    <form action="/" method="get">
-        <label for="expiry_date">Expiry Date:</label>
-        <input type="text" id="expiry_date" name="expiry_date" placeholder="Enter expiry date (e.g., 23JUL23)">
-        <br>
-        <label for="strike_price_range">Strike Price Range:</label>
-        <input type="text" id="strike_price_range" name="strike_price_range" placeholder="Enter strike price range (e.g., 100-200)">
-        <select id="option_type" name="option_type">
-            <option value="">All</option>
-            <option value="ALLBANKS">ALLBANKS</option>
-            <option value="MAINIDX">MAINIDX</option>
-            <option value="FINANCIALS">FINANCIALS</option>
-            <option value="MIDCAPS">MIDCAPS</option>
-        </select>
-        </select>
-        <input type="submit" value="Filter">
-    </form>
-    
-    <div class="container">
-        <div>
-            <h2>CE Options</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Trading Symbol</th>
-                        <th>Type</th>
-                        <th>Open Interest</th>
-                        <th>Volume</th>
-                        <th>Previous Close Price</th>
-                        <th>LTP</th>
-                        <th>LTQ</th>
-                        <th>Bid Quantity</th>
-                        <th>Bid Price</th>
-                        <th>Ask Price</th>
-                        <th>Ask Quantity</th>
-                        <th>Sequence</th>
-                        <th>Timestamp</th>
-                        <th>Strike Price</th>
-                        <th>Expiry Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for symbol, data in options_data.ce_data.items() %}
-                    <tr>
-                        <td>{{ symbol }}</td>
-                        <td>{{ data["Stock_Type"] }}</td>
-                        <td>{{ data["Open Interest"] }}</td>
-                        <td>{{ data["Volume"] }}</td>
-                        <td>{{ data["Previous Close Price"] }}</td>
-                        <td>{{ data["LTP"] }}</td>
-                        <td>{{ data["LTQ"] }}</td>
-                        <td>{{ data["Bid Quantity"] }}</td>
-                        <td>{{ data["Bid Price"] }}</td>
-                        <td>{{ data["Ask Price"] }}</td>
-                        <td>{{ data["Ask Quantity"] }}</td>
-                        <td>{{ data["Sequence"] }}</td>
-                        <td>{{ data["Timestamp"] }}</td>
-                        <td>{{ data["Strike Price"] }}</td>
-                        <td>{{ data["Expiry Date"] }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div>
-            <h2>PE Options</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Trading Symbol</th>
-                        <th>Type</th>
-                        <th>Open Interest</th>
-                        <th>Volume</th>
-                        <th>Previous Close Price</th>
-                        <th>LTP</th>
-                        <th>LTQ</th>
-                        <th>Bid Quantity</th>
-                        <th>Bid Price</th>
-                        <th>Ask Price</th>
-                        <th>Ask Quantity</th>
-                        <th>Sequence</th>
-                        <th>Timestamp</th>
-                        <th>Strike Price</th>
-                        <th>Expiry Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for symbol, data in options_data.pe_data.items() %}
-                    <tr>
-                        <td>{{ symbol }}</td>
-                        <td>{{ data["Stock_Type"] }}</td>
-                        <td>{{ data["Open Interest"] }}</td>
-                        <td>{{ data["Volume"] }}</td>
-                        <td>{{ data["Previous Close Price"] }}</td>
-                        <td>{{ data["LTP"] }}</td>
-                        <td>{{ data["LTQ"] }}</td>
-                        <td>{{ data["Bid Quantity"] }}</td>
-                        <td>{{ data["Bid Price"] }}</td>
-                        <td>{{ data["Ask Price"] }}</td>
-                        <td>{{ data["Ask Quantity"] }}</td>
-                        <td>{{ data["Sequence"] }}</td>
-                        <td>{{ data["Timestamp"] }}</td>
-                        <td>{{ data["Strike Price"] }}</td>
-                        <td>{{ data["Expiry Date"] }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div class="option-head">
+      <div class="content">
+        Options Chain (Equity Derivatives)
+      </div>
     </div>
+
+    <div class="form">
+      <form action="/" method="get">
+        
+        <div class="grid-container">
+
+          <div class="selectsymb">
+            <div class="selectsymb-head">
+              <p>Select Symbol</p>
+            </div>
+            <div class="custom-select">
+              <select id="option_type" name="option_type">
+                  <option value="ALLBANKS">ALLBANKS</option>
+                  <option value="MAINIDX">MAINIDX</option>
+                  <option value="FINANCIALS">FINANCIALS</option>
+                  <option value="MIDCAPS">MIDCAPS</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="expirydate">
+            <div class="expirydate-head">
+              <p for="expiry_date">Expiry Date</p>
+            </div>
+            <div class="expirydate-input">
+              <input type="text" id="expiry_date" name="expiry_date" class="expirydate-content" placeholder="Ex: 06JUL23">
+            </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter_button">
+          <input type="submit" value="Submit">
+        </div>
+
+        <div class="container">
+          <div>
+              
+              <table id="ce-options-table">
+                  <thead>
+                      <tr>
+                        <th colspan="15">CALL</th>
+                      </tr>
+                      <tr>
+                          <th>TRADING SYMBOL</th>
+                          <th>OI</th>
+                          <th> CHNG IN OI</th>
+                          <th>VOLUME</th>
+                          <th> IV </th>
+                          <th>PREVIOUS CLOSE PRICE</th>
+                          <th> CHNG </th>
+                          <th>LTP</th>
+                          <th>LTQ</th>
+                          <th>BID QTY</th>
+                          <th>BID</th>
+                          <th>ASK</th>
+                          <th>ASK QTY</th>
+                          <th>SEQUENCE</th>
+                          <th>STRIKE</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for symbol, data in options_data.ce_data.items() %}
+                      <tr>
+                          <td>{{ symbol }}</td>
+                          <td>{{ data["Open Interest"] }}</td>
+                          <td>{{ data["Change OI"]}} </td>
+                          <td>{{ data["Volume"] }}</td>
+                          <td></td>
+                          <td>{{ data["Previous Close Price"] }}</td>
+                          <td>{{ data["Change wrt CP"] }}</td>
+                          <td>{{ data["LTP"] }}</td>
+                          <td>{{ data["LTQ"] }}</td>
+                          <td>{{ data["Bid Quantity"] }}</td>
+                          <td>{{ data["Bid Price"] }}</td>
+                          <td>{{ data["Ask Price"] }}</td>
+                          <td>{{ data["Ask Quantity"] }}</td>
+                          <td>{{ data["Sequence"] }}</td>
+                          <td>{{ data["Strike Price"] }}</td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+          </div>
+          <div>
+             
+              <table id="pe-options-table">
+                  <thead>
+                      <tr>
+                        <th colspan="15">PUTS</th>
+                      </tr>
+                      <tr>
+                          <th>TRADING SYMBOL</th>
+                          <th>OI</th>
+                          <th> CHNG IN OI</th>
+                          <th>VOLUME</th>
+                          <th> IV </th>
+                          <th>PREVIOUS CLOSE PRICE</th>
+                          <th> CHNG </th>
+                          <th>LTP</th>
+                          <th>LTQ</th>
+                          <th>BID QTY</th>
+                          <th>BID</th>
+                          <th>ASK</th>
+                          <th>ASK QTY</th>
+                          <th>SEQUENCE</th>
+                          <th>STRIKE</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for symbol, data in options_data.pe_data.items() %}
+                      <tr>
+                          <td>{{ symbol }}</td>
+                          <td>{{ data["Open Interest"] }}</td>
+                          <td>{{ data["Change OI"]}} </td>
+                          <td>{{ data["Volume"] }}</td>
+                          <td></td>
+                          <td>{{ data["Previous Close Price"] }}</td>
+                          <td>{{ data["Change wrt CP"] }}</td>
+                          <td>{{ data["LTP"] }}</td>
+                          <td>{{ data["LTQ"] }}</td>
+                          <td>{{ data["Bid Quantity"] }}</td>
+                          <td>{{ data["Bid Price"] }}</td>
+                          <td>{{ data["Ask Price"] }}</td>
+                          <td>{{ data["Ask Quantity"] }}</td>
+                          <td>{{ data["Sequence"] }}</td>
+                          <td>{{ data["Strike Price"] }}</td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+          </div>
+      </div>
+
+      </form>
+    </div>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+
+        $(document).ready(function() {
+            setInterval(function() {
+                $.ajax({
+                    url:'http://127.0.0.1:5000/data',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        updateTable(response);
+                    },
+                    error: function() {
+                        console.log('Error occurred while fetching options data.');
+                    }
+                });
+            }, 5000); 
+
+            function updateTable(optionsData) {
+                var ceOptionsTable = $('#ce-options-table');
+                ceOptionsTable.find('tbody').empty();
+                for (var symbol in optionsData.ce_data) {
+                    if (optionsData.ce_data.hasOwnProperty(symbol)) {
+                        var data = optionsData.ce_data[symbol];
+                        var row = '<tr>' +
+                            '<td>' + symbol + '</td>' +
+                            '<td>' + data["Open Interest"] + '</td>' +
+                            '<td>' + data["Change OI"] + '</td>' +
+                            '<td>' + data["Volume"] + '</td>' +
+                            '<td>' + '</td>' +
+                            '<td>' + data["Previous Close Price"] + '</td>' +
+                            '<td>' + data["Change wrt CP"] + '</td>' +
+                            '<td>' + data["LTP"] + '</td>' +
+                            '<td>' + data["LTQ"] + '</td>' +
+                            '<td>' + data["Bid Quantity"] + '</td>' +
+                            '<td>' + data["Bid Price"] + '</td>' +
+                            '<td>' + data["Ask Price"] + '</td>' +
+                            '<td>' + data["Ask Quantity"] + '</td>' +
+                            '<td>' + data["Sequence"] + '</td>' +
+                            '<td>' + data["Strike Price"] + '</td>' +
+                            '</tr>';
+                        ceOptionsTable.append(row);
+                    }
+                }
+
+                var peOptionsTable = $('#pe-options-table');
+                peOptionsTable.find('tbody').empty();
+                for (var symbol in optionsData.pe_data) {
+                    if (optionsData.pe_data.hasOwnProperty(symbol)) {
+                        var data = optionsData.pe_data[symbol];
+                        var row = '<tr>' +
+                            '<td>' + symbol + '</td>' +
+                            '<td>' + data["Open Interest"] + '</td>' +
+                            '<td>' + data["Change OI"] + '</td>' +
+                            '<td>' + data["Volume"] + '</td>' +
+                            '<td>' + '</td>' +
+                            '<td>' + data["Previous Close Price"] + '</td>' +
+                            '<td>' + data["Change wrt CP"] + '</td>' +
+                            '<td>' + data["LTP"] + '</td>' +
+                            '<td>' + data["LTQ"] + '</td>' +
+                            '<td>' + data["Bid Quantity"] + '</td>' +
+                            '<td>' + data["Bid Price"] + '</td>' +
+                            '<td>' + data["Ask Price"] + '</td>' +
+                            '<td>' + data["Ask Quantity"] + '</td>' +
+                            '<td>' + data["Sequence"] + '</td>' +
+                            '<td>' + data["Strike Price"] + '</td>' +
+                            '</tr>';
+                        peOptionsTable.append(row);
+                    }
+                }
+            }
+        });
+        
+        
+      
+      const expiryDateInput = document.getElementById('expiry_date');
+      
+      
+      const selectedDateElement = document.getElementById('selected_date');
+
+      
+      expiryDateInput.addEventListener('change', function() {
+        
+        const selectedDate = new Date(this.value);
+
+        
+        const formattedDate = `${selectedDate.getDate().toString().padStart(2, '0')}${selectedDate.toLocaleString('default', { month: 'short' }).toUpperCase()}${selectedDate.getFullYear().toString().slice(-2)}`;
+
+        
+        selectedDateElement.textContent = formattedDate;
+      });
+    </script>
+
 </body>
 </html>
