@@ -8,13 +8,25 @@ app = Flask(__name__)
 
 ce_data = {}
 pe_data = {}
+trading_symbol = 0
+sequence_number = 0
+timestamp = 0
+ltp = 0
+ltp_quantity = 0
+volume = 0
+bid_price = 0
+bid_quantity = 0
+ask_price = 0
+ask_quantity = 0
+open_interest = 0
+prev_close_price = 0
 
 
 def process_packet(packet_data):
-    # Unpack the fields from the received data
+    
     unpacked_data = struct.unpack('<i30sqqqqqqqqqqqq', packet_data)
 
-    # Process the unpacked data
+    
     packet_length = unpacked_data[0]
     trading_symbol = (
         unpacked_data[1].decode().rstrip('\x00') if len(unpacked_data) > 1 else None
@@ -30,21 +42,24 @@ def process_packet(packet_data):
     ask_quantity = unpacked_data[10] if len(unpacked_data) > 10 else None
     open_interest = unpacked_data[11] if len(unpacked_data) > 11 else None
     prev_close_price = unpacked_data[12] / 100 if len(unpacked_data) > 12 else None
+    prev_open_interest = unpacked_data[13] if len(unpacked_data) > 13 else None
 
     trading_symbol_parts = re.findall(r'^([A-Z]+)(\d{2}[A-Z]{3}\d{2})(\d+[A-Z]+)$', trading_symbol)
     if trading_symbol_parts:
         type_stock = trading_symbol_parts[0][0]
-        expiry_date = trading_symbol_parts[0][1]  # Extract the first 6 characters
-        strike_price = trading_symbol_parts[0][2][:-2]  # Exclude the last two characters
+        expiry_date = trading_symbol_parts[0][1]  
+        strike_price = trading_symbol_parts[0][2][:-2]  
     else:
         expiry_date = None
         strike_price = None
 
-    # Check if the trading symbol is for CE or PE
+   
     if trading_symbol.endswith('CE'):
-        # Check if the key already exists in ce_data
+        chng_io=open_interest-prev_open_interest
+        chng_cp=ltp-prev_close_price
+        
         if trading_symbol in ce_data:
-            # Update the values for the existing key
+           
             ce_data[trading_symbol].update({
                 'Stock_Type': type_stock,
                 'Expiry Date': expiry_date,
@@ -60,10 +75,13 @@ def process_packet(packet_data):
                 'Timestamp': timestamp,
                 'Sequence': sequence_number,
                 'Previous Close Price': prev_close_price,
+                'Previous Open Interest':prev_open_interest,
+                'Change OI': chng_io,
+                'Change wrt CP': chng_cp,
                 'Type': 'CE'
             })
         else:
-            # Add CE data to dictionary
+            
             ce_data[trading_symbol] = {
                 'Stock_Type': type_stock,
                 'Expiry Date': expiry_date,
@@ -79,12 +97,17 @@ def process_packet(packet_data):
                 'Timestamp': timestamp,
                 'Sequence': sequence_number,
                 'Previous Close Price': prev_close_price,
+                'Previous Open Interest':prev_open_interest,
+                'Change OI': chng_io,
+                'Change wrt CP': chng_cp,
                 'Type': 'CE'
             }
     elif trading_symbol.endswith('PE'):
-        # Check if the key already exists in pe_data
+        chng_io=open_interest-prev_open_interest
+        chng_cp=ltp-prev_close_price
+        
         if trading_symbol in pe_data:
-            # Update the values for the existing key
+            
             pe_data[trading_symbol].update({
                 'Stock_Type': type_stock,
                 'Expiry Date': expiry_date,
@@ -100,10 +123,13 @@ def process_packet(packet_data):
                 'Timestamp': timestamp,
                 'Sequence': sequence_number,
                 'Previous Close Price': prev_close_price,
+                'Previous Open Interest':prev_open_interest,
+                'Change OI': chng_io,
+                'Change wrt CP': chng_cp,
                 'Type': 'PE'
             })
         else:
-            # Add PE data to dictionary
+           
             pe_data[trading_symbol] = {
                 'Stock_Type': type_stock,
                 'Expiry Date': expiry_date,
@@ -119,24 +145,27 @@ def process_packet(packet_data):
                 'Timestamp': timestamp,
                 'Sequence': sequence_number,
                 'Previous Close Price': prev_close_price,
+                'Previous Open Interest':prev_open_interest,
+                'Change OI': chng_io,
+                'Change wrt CP': chng_cp,
                 'Type': 'PE'
             }
 
 
 def fetch_data():
-    # Set up the TCP/IP connection
-    host = 'localhost'  # Assuming the server is running on the same machine
+    
+    host = 'localhost'  
     port = 8080
-    buffer_size = 1024  # Adjust the buffer size as needed
+    buffer_size = 1024  
 
-    # Connect to the server
+   
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((host, port))
     client_socket.send(b'\x01')
 
-    # Receive and process the data
-    packet_size = 130  # Packet size is fixed at 106 bytes
-    buffer = b''  # Buffer to accumulate received data
+   
+    packet_size = 130  
+    buffer = b''  
 
     while True:
         data = client_socket.recv(buffer_size)
@@ -145,14 +174,14 @@ def fetch_data():
 
         buffer += data
 
-        # Process complete packets in the buffer
+       
         while len(buffer) >= packet_size:
             packet_data = buffer[:packet_size]
             buffer = buffer[packet_size:]
 
             process_packet(packet_data)
 
-    # Close the connection
+    
     client_socket.close()
 
 
@@ -161,14 +190,16 @@ def start_fetching_data():
     thread.start()
 
 
+
+
 @app.route('/data', methods=['GET'])
 def get_data():
-    # Retrieve the expiry date input from the user (e.g., '23JUL23')
+   
     expiry_date = request.args.get('expiry_date')
     strike_price_range = request.args.get('strike_price_range')
     option_type = request.args.get('option_type')
 
-    # Filter the CE and PE data based on the provided expiry date and strike price range
+    
     filtered_ce_data = {}
     filtered_pe_data = {}
 
@@ -188,12 +219,12 @@ def get_data():
         filtered_pe_data = pe_data
 
     if strike_price_range:
-        # Extract the minimum and maximum strike price from the range
+       
         min_strike_price, max_strike_price = strike_price_range.split('-')
         min_strike_price = int(min_strike_price.strip())
         max_strike_price = int(max_strike_price.strip())
 
-        # Filter the CE and PE data based on the strike price range
+        
         filtered_ce_data = {
             symbol: data
             for symbol, data in filtered_ce_data.items()
@@ -205,7 +236,7 @@ def get_data():
             if min_strike_price <= int(data.get('Strike Price')) <= max_strike_price
         }
 
-    # Filter the data based on the selected option type
+   
     if option_type:
         filtered_ce_data = {
             symbol: data
@@ -218,25 +249,45 @@ def get_data():
             if data.get('Stock_Type') == option_type
         }
 
-    # Return the filtered data as JSON responses
+   
     return jsonify(ce_data=filtered_ce_data, pe_data=filtered_pe_data)
 
 
 
 @app.route('/')
 def index():
-    # Retrieve the expiry date and strike price range input from the user
+    
     expiry_date = request.args.get('expiry_date')
     strike_price_range = request.args.get('strike_price_range')
 
-    # Retrieve the filtered data based on the expiry date and strike price range
+    
     response = get_data()
     filtered_data = response.json
 
-    return render_template('index.html', options_data=filtered_data,
-                           expiry_date=expiry_date, strike_price_range=strike_price_range)
+    
+    ce_strike_prices = sorted(
+        set(int(data['Strike Price']) for data in filtered_data['ce_data'].values())
+    )
+    pe_strike_prices = sorted(
+        set(int(data['Strike Price']) for data in filtered_data['pe_data'].values())
+    )
 
+    
+    min_strike_price = 35000
+    max_strike_price = 50000
+    increment = 50
+    strike_prices = list(range(min_strike_price, max_strike_price + increment, increment))
+
+    
+    strike_prices = [price for price in strike_prices if price >= min(ce_strike_prices + pe_strike_prices)]
+
+    return render_template('index.html', options_data=filtered_data,
+                           expiry_date=expiry_date, strike_price_range=strike_price_range,
+                           strike_prices=strike_prices)
+
+
+# ...
 
 if __name__ == '__main__':
-    start_fetching_data()  # Start fetching data in a separate thread
+    start_fetching_data()  
     app.run(debug=True, port=5000)
